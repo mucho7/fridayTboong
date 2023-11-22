@@ -38,14 +38,15 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
 
   const getDatesOfThisWeek = () => {
     // const today = new Date();
-    const today = new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000 * 2);
+    // 일단 2주 전으로 계산 중  - 7 * 24 * 60 * 60 * 1000
+    const today = new Date(new Date().getTime());
     const dayOfWeek = today.getDay();
 
     const monday = new Date(today);
     monday.setDate(today.getDate() - dayOfWeek + 1);
 
     const friday = new Date(monday);
-    friday.setDate(monday.getDate() + 4);
+    friday.setDate(monday.getDate() + 3);
 
     const datesOfWeek: Date[] = [];
     for (

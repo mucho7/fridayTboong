@@ -1,13 +1,18 @@
-import { useState, ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { read, utils } from "xlsx";
-import WorkTimeView from "./WorkTimeView";
+import "./Excelnput.css";
 
-const ExcelInput = () => {
-  const [excelFile, setExcelFile] = useState<string[][]>([]);
+type ExcelInputProps = {
+  setExcelFile: (file: string[][]) => void;
+};
+
+const ExcelInput = (props: ExcelInputProps) => {
+  const { setExcelFile } = props;
+  const [filePath, setFilePath] = useState<string>("");
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
+    file && setFilePath(file.name);
     if (!file) return;
 
     const reader = new FileReader();
@@ -28,15 +33,15 @@ const ExcelInput = () => {
   };
 
   return (
-    <>
-      {excelFile.length !== 0 ? <WorkTimeView excelFile={excelFile} /> : <></>}
+    <div className="filebox">
       <input
-        type="file"
-        onChange={handleFile}
-        accept=".xlsx"
-        multiple={false}
+        className="upload-name"
+        value={filePath || "근태 엑셀 파일 찾기"}
+        placeholder="근태 엑셀 파일 찾기"
       />
-    </>
+      <label htmlFor="file">파일찾기</label>
+      <input type="file" id="file" onChange={handleFile} />
+    </div>
   );
 };
 

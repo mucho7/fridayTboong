@@ -1,10 +1,10 @@
 import styled from "styled-components";
-import { Warning, ExcelInput } from "./components";
+import { Warning, UserInput } from "./components";
 
 function App() {
   return (
     <TmaxWrapper>
-      <ExcelInput />
+      <UserInput />
       <Warning />
     </TmaxWrapper>
   );

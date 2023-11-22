@@ -20,7 +20,7 @@ const Warning = () => {
 
 const WarningContainer = styled.div`
   position: relative;
-  border: 2px solid black;
+  border: 2px solid red;
   border-radius: 10px;
   padding: 2rem;
 `;
@@ -29,7 +29,7 @@ const WarningSign = styled.div`
   position: absolute;
   top: -10px;
   left: 30px;
-  background-color: var(--color-background);
+  background-color: white;
   font-weight: 600;
   padding: 0px 5px;
 `;
