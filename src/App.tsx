@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { Warning } from "./components";
+import { Warning, ExcelInput } from "./components";
 
 function App() {
   return (
     <TmaxWrapper>
+      <ExcelInput />
       <Warning />
     </TmaxWrapper>
   );
@@ -15,7 +16,7 @@ const TmaxWrapper = styled.div`
   align-items: center;
   flex-direction: column;
 
-  margin: 0 30%;
+  max-width: 600px;
 `;
 
 export default App;

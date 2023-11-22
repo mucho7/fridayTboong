@@ -11,9 +11,7 @@ const Warning = () => {
       <WarningContainer>
         <WarningSign>주의사항</WarningSign>
         {warningContents.map((content, idx) => (
-          <>
-            <WarningContent key={idx}>{content}</WarningContent>
-          </>
+          <WarningContent key={idx}>{content}</WarningContent>
         ))}
       </WarningContainer>
     </>
