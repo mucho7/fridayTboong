@@ -38,6 +38,7 @@ const ExcelInput = (props: ExcelInputProps) => {
         className="upload-name"
         value={filePath || "근태 엑셀 파일 찾기"}
         placeholder="근태 엑셀 파일 찾기"
+        readOnly
       />
       <label htmlFor="file">파일찾기</label>
       <input type="file" id="file" onChange={handleFile} />

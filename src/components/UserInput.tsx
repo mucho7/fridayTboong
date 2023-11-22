@@ -5,14 +5,18 @@ import { WorkTimeView } from "./";
 import styled from "styled-components";
 
 const UserInput = () => {
+  const [todayWork, setTodayWork] = useState(0);
   const [excelFile, setExcelFile] = useState<string[][]>([]);
 
   return (
     <>
-      {excelFile.length !== 0 ? <WorkTimeView excelFile={excelFile} /> : <></>}
-
+      {excelFile.length !== 0 ? (
+        <WorkTimeView excelFile={excelFile} todayWork={todayWork} />
+      ) : (
+        <></>
+      )}
       <InputWrapper>
-        <TimeInput />
+        <TimeInput setTodayWork={setTodayWork} />
         <ExcelInput setExcelFile={setExcelFile} />
       </InputWrapper>
     </>

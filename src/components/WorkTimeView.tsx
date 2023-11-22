@@ -1,21 +1,31 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 interface workTimeType {
   time: number;
-  vacation?: "공휴일" | "월차휴가" | "연차휴가" | "반차휴가" | "정상근무";
+  vacation?:
+    | "공휴일"
+    | "월차휴가"
+    | "연차휴가"
+    | "반차휴가"
+    | "정상근무"
+    | "-"
+    | "오늘";
 }
 
 type WorkTimeViewProps = {
   excelFile: string[][];
+  todayWork: number;
 };
 
 const WorkTimeView = (props: WorkTimeViewProps) => {
-  const { excelFile } = props;
+  const { excelFile, todayWork } = props;
   const week = ["월", "화", "수", "목", "금"];
 
   const convertToHHMM = (time: number) => {
     const hour = Math.floor(time / 60);
     const minute = time % 60;
+    if (hour === 0 && minute === 0) return "-";
     return `${hour}시간 ${minute}분`;
   };
 
@@ -37,8 +47,6 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
   };
 
   const getDatesOfThisWeek = () => {
-    // const today = new Date();
-    // 일단 2주 전으로 계산 중  - 7 * 24 * 60 * 60 * 1000
     const today = new Date(new Date().getTime());
     const dayOfWeek = today.getDay();
 
@@ -46,7 +54,7 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
     monday.setDate(today.getDate() - dayOfWeek + 1);
 
     const friday = new Date(monday);
-    friday.setDate(monday.getDate() + 3);
+    friday.setDate(monday.getDate() + 4);
 
     const datesOfWeek: Date[] = [];
     for (
@@ -61,19 +69,25 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
 
   const calculateTime = (weekAttend: string[][]) => {
     const weekDays = getDatesOfThisWeek();
-    const targetWeek = weekDays.map((day) =>
-      weekAttend.find(
+    const targetWeek = weekDays.map((day) => {
+      const found = weekAttend.find(
         (attend) => formatDate(day) === excelSerialToJSDate(attend[6])
-      )
-    );
-    const weekRes: workTimeType[] = targetWeek.map((dayAttend) => {
+      );
+      return found ? found : day;
+    });
+    const weekRes: workTimeType[] = targetWeek.map((dayAttend, idx) => {
       const dayRes: workTimeType = {
         time: 0,
       };
 
-      if (dayAttend === undefined) {
-        console.log(dayAttend);
-        dayRes.vacation = "공휴일";
+      if (dayAttend instanceof Date) {
+        const today = new Date();
+        if (today < dayAttend) {
+          dayRes.vacation = "-";
+        } else if (today.getTime() === dayAttend.getTime()) {
+          dayRes.vacation = "오늘";
+          dayRes.time = 0;
+        } else dayRes.vacation = "공휴일";
         return dayRes;
       }
 
@@ -118,23 +132,39 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
           </thead>
           <tbody>
             <tr>
-              {workTime.map((dailyWork) => (
-                <ThTd>{dailyWork.vacation}</ThTd>
+              {workTime.map((dailyWork, idx) => (
+                <ThTd key={idx}>{dailyWork.vacation}</ThTd>
               ))}
             </tr>
             <tr>
-              {workTime.map((dailyWork) => (
-                <ThTd>{convertToHHMM(dailyWork.time)}</ThTd>
+              {workTime.map((dailyWork, idx) => (
+                <ThTd key={idx}>
+                  {dailyWork.vacation === "오늘"
+                    ? convertToHHMM(todayWork)
+                    : convertToHHMM(dailyWork.time)}
+                </ThTd>
               ))}
             </tr>
           </tbody>
         </SimpleTable>
       </TableContainer>
-      <tr>
-        <ThTd style={{ width: 600 }}>
-          총 근무 시간 : {convertToHHMM(totalWorkTime)}
-        </ThTd>
-      </tr>
+      <SimpleTable>
+        <tbody>
+          <tr>
+            <ThTd style={{ width: 600 }}>
+              총 근무 시간 : {convertToHHMM(totalWorkTime)}
+            </ThTd>
+          </tr>
+          {/* <tr>
+            <ThTd style={{ width: 600 }}>총 필요 근무 시간 : {5 * 8}시간</ThTd>
+          </tr> */}
+          <tr>
+            <ThTd style={{ width: 600 }}>
+              남은 근무 시간 : {convertToHHMM(5 * 8 * 60 - totalWorkTime)}
+            </ThTd>
+          </tr>
+        </tbody>
+      </SimpleTable>
     </WorkTimeWrapper>
   );
 };
