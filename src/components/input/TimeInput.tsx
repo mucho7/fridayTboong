@@ -7,36 +7,27 @@ import {
   FormLabel,
 } from "@mui/material";
 
+import dayjs, { Dayjs } from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { TimeField } from "@mui/x-date-pickers/TimeField";
+
 type TimeInputProps = {
   setTodayWork: (time: number) => void;
 };
 
 const TimeInput = (props: TimeInputProps) => {
   const { setTodayWork } = props;
-  const [hour, setHour] = useState(9);
-  const [minute, setMinute] = useState(0);
   const [vacation, setVacation] = useState(0);
-
-  const limitValue = (target: number, max: number) => {
-    if (target > max || target < 0) return false;
-    return true;
-  };
+  const [value, setValue] = useState<Dayjs>(dayjs("2022-04-17T09:00"));
 
   const handleVacation = (event) => {
     setVacation(Number(event.target.value));
   };
 
-  const handleHourChange = (event) => {
-    if (limitValue(event.target.value, 23)) setHour(Number(event.target.value));
-  };
-
-  const handleMinuteChange = (event) => {
-    if (limitValue(event.target.value, 59))
-      setMinute(Number(event.target.value));
-  };
-
-  const style = {
-    width: "20px",
+  const handleTimeChange = (event) => {
+    setValue(event);
   };
 
   useEffect(() => {
@@ -44,12 +35,18 @@ const TimeInput = (props: TimeInputProps) => {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const workTime =
-      (currentHour + vacation - hour) * 60 + (currentMinute - minute);
+      (currentHour + vacation - value.get("hour")) * 60 +
+      (currentMinute - value.get("minute"));
     setTodayWork(workTime);
-  }, [hour, minute, vacation, setTodayWork]);
+  }, [value, vacation, setTodayWork]);
 
   return (
-    <div style={{ margin: "0 auto", display: "flex", alignItems: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
       <FormControl>
         <FormLabel>금일 휴가 여부</FormLabel>
         <RadioGroup value={vacation} onChange={handleVacation} row>
@@ -58,11 +55,15 @@ const TimeInput = (props: TimeInputProps) => {
           <FormControlLabel value={4} control={<Radio />} label="반차" />
         </RadioGroup>
       </FormControl>
-      {`오늘 `}
-      <input style={style} value={hour} onChange={handleHourChange} />
-      {`시 `}
-      <input style={style} value={minute} onChange={handleMinuteChange} />분
-      출근
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DemoContainer components={["TimeField"]}>
+          <TimeField
+            label="금일 출근 시간"
+            value={value}
+            onChange={handleTimeChange}
+          />
+        </DemoContainer>
+      </LocalizationProvider>
     </div>
   );
 };

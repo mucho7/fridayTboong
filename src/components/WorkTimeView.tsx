@@ -1,4 +1,3 @@
-import { useState } from "react";
 import styled from "styled-components";
 
 interface workTimeType {
@@ -117,7 +116,8 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
   };
 
   const workTime = calculateTime(excelFile);
-  const totalWorkTime = workTime.reduce((sum, work) => sum + work.time, 0);
+  const totalWorkTime =
+    workTime.reduce((sum, work) => sum + work.time, 0) + todayWork;
 
   return (
     <WorkTimeWrapper>
