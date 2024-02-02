@@ -34,8 +34,12 @@ const TimeInput = (props: TimeInputProps) => {
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
+    let mealTimeFlag = 0;
+    if (currentHour >= 14) mealTimeFlag += 1;
+    if (currentHour >= 20) mealTimeFlag += 1;
+
     const workTime =
-      (currentHour + vacation - value.get("hour")) * 60 +
+      (currentHour + vacation - value.get("hour") - mealTimeFlag) * 60 +
       (currentMinute - value.get("minute"));
     setTodayWork(workTime);
   }, [value, vacation, setTodayWork]);

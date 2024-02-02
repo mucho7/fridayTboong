@@ -20,6 +20,7 @@ type WorkTimeViewProps = {
 const WorkTimeView = (props: WorkTimeViewProps) => {
   const { excelFile, todayWork } = props;
   const week = ["월", "화", "수", "목", "금"];
+  const today = new Date(new Date().getTime());
 
   const convertToHHMM = (time: number) => {
     const hour = Math.floor(time / 60);
@@ -46,7 +47,6 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
   };
 
   const getDatesOfThisWeek = () => {
-    const today = new Date(new Date().getTime());
     const dayOfWeek = today.getDay();
 
     const monday = new Date(today);
@@ -74,13 +74,14 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
       );
       return found ? found : day;
     });
-    const weekRes: workTimeType[] = targetWeek.map((dayAttend, idx) => {
+
+    const weekRes: workTimeType[] = targetWeek.map((dayAttend) => {
       const dayRes: workTimeType = {
         time: 0,
       };
 
       if (dayAttend instanceof Date) {
-        const today = new Date();
+        // const today = new Date();
         if (today < dayAttend) {
           dayRes.vacation = "-";
         } else if (today.getTime() === dayAttend.getTime()) {
@@ -90,34 +91,45 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
         return dayRes;
       }
 
-      if (dayAttend[13] === "월차휴가" || dayAttend[13] === "연차휴가") {
-        dayRes.time = 8 * 60;
-        dayRes.vacation = dayAttend[13];
-        return dayRes;
-      }
-
       let mealTimeFlag = 1;
       const arrive = dayAttend[7].split(":").map(Number);
       const leave = dayAttend[10].split(":").map(Number);
       const hour = leave[0] - arrive[0];
       const minute = leave[1] - arrive[1];
 
-      if (dayAttend[13] === "반차(오후)" || dayAttend[13] === "반차(오전)") {
+      if (dayAttend[13] === "월차휴가" || dayAttend[13] === "연차휴가") {
+        dayRes.time = 8 * 60;
+        dayRes.vacation = dayAttend[13];
+        return dayRes;
+      } else if (
+        dayAttend[13] === "반차(오후)" ||
+        dayAttend[13] === "반차(오전)"
+      ) {
         mealTimeFlag -= 1;
-      }
+        dayRes.vacation = "반차휴가";
+      } else dayRes.vacation = "정상근무";
 
       if (leave[0] >= 20) mealTimeFlag += 1;
 
-      dayRes.time = (hour - mealTimeFlag) * 60 + minute;
-      dayRes.vacation = "정상근무";
+      dayRes.time += (hour - mealTimeFlag) * 60 + minute;
       return dayRes;
     });
+
     return weekRes;
   };
 
   const workTime = calculateTime(excelFile);
   const totalWorkTime =
     workTime.reduce((sum, work) => sum + work.time, 0) + todayWork;
+  const neededWorkTime = workTime.reduce((sum, work) => {
+    let deduction = 0;
+    if (work.vacation === "월차휴가" || work.vacation === "연차휴가") {
+      deduction = 8;
+    } else if (work.vacation === "반차휴가") {
+      deduction = 4;
+    }
+    return sum - deduction;
+  }, 40);
 
   return (
     <WorkTimeWrapper>
@@ -155,12 +167,17 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
               총 근무 시간 : {convertToHHMM(totalWorkTime)}
             </ThTd>
           </tr>
-          {/* <tr>
-            <ThTd style={{ width: 600 }}>총 필요 근무 시간 : {5 * 8}시간</ThTd>
-          </tr> */}
           <tr>
             <ThTd style={{ width: 600 }}>
-              남은 근무 시간 : {convertToHHMM(5 * 8 * 60 - totalWorkTime)}
+              총 필요 근무 시간 : {neededWorkTime}시간
+            </ThTd>
+          </tr>
+          <tr>
+            <ThTd style={{ width: 600 }}>
+              남은 근무 시간 :{" "}
+              {neededWorkTime * 60 - totalWorkTime < 0
+                ? "근무완료!"
+                : convertToHHMM(neededWorkTime * 60 - totalWorkTime)}
             </ThTd>
           </tr>
         </tbody>
