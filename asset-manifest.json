@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/fridayTboong/static/css/main.b23d9656.css",
-    "main.js": "/fridayTboong/static/js/main.7a05e129.js",
+    "main.js": "/fridayTboong/static/js/main.82f0c878.js",
     "index.html": "/fridayTboong/index.html",
     "main.b23d9656.css.map": "/fridayTboong/static/css/main.b23d9656.css.map",
-    "main.7a05e129.js.map": "/fridayTboong/static/js/main.7a05e129.js.map"
+    "main.82f0c878.js.map": "/fridayTboong/static/js/main.82f0c878.js.map"
   },
   "entrypoints": [
     "static/css/main.b23d9656.css",
-    "static/js/main.7a05e129.js"
+    "static/js/main.82f0c878.js"
   ]
 }
