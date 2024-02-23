@@ -1,3 +1,5 @@
+import { Restaurant } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import styled from "styled-components";
 
 interface workTimeType {
@@ -10,6 +12,7 @@ interface workTimeType {
     | "정상근무"
     | "-"
     | "오늘";
+  mealTimeFlag: number;
 }
 
 type WorkTimeViewProps = {
@@ -78,6 +81,7 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
     const weekRes: workTimeType[] = targetWeek.map((dayAttend) => {
       const dayRes: workTimeType = {
         time: 0,
+        mealTimeFlag: 1,
       };
 
       if (dayAttend instanceof Date) {
@@ -91,27 +95,25 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
         return dayRes;
       }
 
-      let mealTimeFlag = 1;
       const arrive = dayAttend[7].split(":").map(Number);
       const leave = dayAttend[10].split(":").map(Number);
       const hour = leave[0] - arrive[0];
       const minute = leave[1] - arrive[1];
 
       if (dayAttend[13] === "월차휴가" || dayAttend[13] === "연차휴가") {
-        dayRes.time = 8 * 60;
         dayRes.vacation = dayAttend[13];
         return dayRes;
       } else if (
         dayAttend[13] === "반차(오후)" ||
         dayAttend[13] === "반차(오전)"
       ) {
-        mealTimeFlag -= 1;
+        dayRes.mealTimeFlag -= 1;
         dayRes.vacation = "반차휴가";
       } else dayRes.vacation = "정상근무";
 
-      if (leave[0] >= 20) mealTimeFlag += 1;
+      if (leave[0] >= 20) dayRes.mealTimeFlag += 1;
 
-      dayRes.time += (hour - mealTimeFlag) * 60 + minute;
+      dayRes.time += (hour - dayRes.mealTimeFlag) * 60 + minute;
       return dayRes;
     });
 
@@ -154,6 +156,24 @@ const WorkTimeView = (props: WorkTimeViewProps) => {
                   {dailyWork.vacation === "오늘"
                     ? convertToHHMM(todayWork)
                     : convertToHHMM(dailyWork.time)}
+                </ThTd>
+              ))}
+            </tr>
+            <tr>
+              {workTime.map((dailyWork, idx) => (
+                <ThTd key={idx}>
+                  {Array.from(
+                    { length: dailyWork.mealTimeFlag },
+                    (_, index) => (
+                      <Tooltip title={index ? "저녁" : "점심"}>
+                        {index === 0 ? (
+                          <LunchCheck key={index} />
+                        ) : (
+                          <DinnerCheck key={index} />
+                        )}
+                      </Tooltip>
+                    )
+                  )}
                 </ThTd>
               ))}
             </tr>
@@ -212,5 +232,17 @@ const HeaderTh = styled.th`
   padding: 8px;
   text-align: center;
 `;
+
+const LunchCheck = styled(Restaurant)({
+  border: "solid black",
+  borderRadius: "20px",
+  padding: "2px",
+  margin: "2px",
+});
+
+const DinnerCheck = styled(LunchCheck)({
+  color: "white",
+  background: "black",
+});
 
 export default WorkTimeView;
